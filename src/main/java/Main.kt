@@ -12,12 +12,40 @@ import java.io.IOException
 import kotlin.math.roundToInt
 
 fun main() {
-    val numberOfCustomers = 1000
+    /*val numberOfCustomers = 10
     val customerData = generateCustomerData(numberOfCustomers)
     val generator = QueueGenerator(*customerData.toTypedArray())
     generator.customerData().apply {
         print()
         createWorkBook()
+    }*/
+
+    val l = listOf(
+        "firstName",
+        "middleName",
+        "lastName",
+        "dob",
+        "memNo",
+        "mobileNo",
+        "genderGroup",
+        "isStaff",
+        "clientType",
+        "clientClassification",
+        "submitDate",
+        "nationalId",
+        "email",
+        "activationDate"
+    )
+
+    l.forEach { s ->
+        s.map {
+            if (it.isUpperCase()) {
+                "_$it"
+            } else it
+        }.joinToString("").also {
+            val title = "KEY_${it.uppercase()}"
+            println("const val $title = \"$s\"")
+        }
     }
 }
 
@@ -28,15 +56,18 @@ fun generateCustomerData(n: Int): List<Customer> {
     //The random generators are working
     for (i in 0 until n) {
         val lRandom = linearRandom.next()
+        var c = .0
         val interArrivalTime = if (i == 0) 0 else (lRandom * 10).roundToInt()
         val serviceTime = run {
             var time: Int
             do {
                 val cRandom = combinedRandom.next()
+                c = cRandom
                 time = (cRandom * 8).roundToInt()
             } while (time == 0)
             time
         }
+        println("randoms = ($lRandom, $c)")
 
         customers += Customer(interArrivalTime, serviceTime)
     }
@@ -54,7 +85,7 @@ fun List<Queue>.createWorkBook() {
         val workbook = XSSFWorkbook()
         workbook.createSheet(this)
 
-        val outputStream = FileOutputStream("C:\\Users\\LENOVO\\Documents\\Queue System.xlsx")
+        val outputStream = FileOutputStream("Queue System.xlsx")
         workbook.write(outputStream)
 
         outputStream.close()
@@ -77,6 +108,11 @@ fun XSSFWorkbook.createSheet(data: List<Queue>) {
     }
 
     //filling in the data
+    var k = 0
+    var waitingtime = 0
+    var servicetime = 0
+    var timespent = 0
+    var prob = 0
     data.forEachIndexed { i, queue ->
         val row = sheet.createRow(i + 1)
         row.apply {
@@ -91,7 +127,28 @@ fun XSSFWorkbook.createSheet(data: List<Queue>) {
                 createCell(j++, timeServiceEnds.toString())
                 createCell(j++, timeCustomerSpendsInTheSystem.toString())
                 createCell(j, idleTime.toString())
+
+                waitingtime += waitingTimeInQueue
+                servicetime += serviceTime
+                timespent += timeCustomerSpendsInTheSystem
+                if (idleTime > 0) prob++
             }
+        }
+        k = i
+    }
+
+    val size = data.size.toDouble()
+    val map = mapOf(
+        "Average Waiting Time" to waitingtime / size,
+        "Average Service Time" to servicetime / size,
+        "Average Time Spent" to timespent / size,
+        "Probability That A customer will wait in queue" to prob / size
+    )
+
+    map.forEach { (key, value) ->
+        sheet.createRow(++k).apply {
+            createCell(0, key)
+            createCell(1, value.toString())
         }
     }
 

@@ -1,7 +1,7 @@
 class LinearCongruential(seed: Int) {
-    private val m = 2000
-    private val a = 676// this numbers can be generated randomly
-    private val c = 76// same as this
+    private val m = 4256
+    private val a = 349
+    private val c = 435
 
     private var x: Int
 
@@ -9,9 +9,8 @@ class LinearCongruential(seed: Int) {
         x = seed
     }
 
-    constructor() : this(9)
+    constructor() : this(1786)
 
-    @Suppress("unused")
     fun setSeed(seed: Int) {
         x = seed
     }

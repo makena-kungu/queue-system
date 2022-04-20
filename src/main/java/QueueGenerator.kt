@@ -22,15 +22,15 @@ class QueueGenerator(private vararg val customers: Customer) {
             val timeSpent = timeServiceEnds - arrivalTime
 
             val queue = Queue(
-                customer = i + 1,
-                interArrivalTime = interArrivalTime,
-                arrivalTime = arrivalTime,
-                serviceTime = serviceTime,
-                timeServiceBegins = timeServiceBegins,
-                waitingTimeInQueue = timeServiceBegins - arrivalTime,
-                timeServiceEnds = timeServiceEnds,
-                timeCustomerSpendsInTheSystem = timeSpent,
-                idleTime = previous?.let {
+                i + 1,
+                interArrivalTime,
+                arrivalTime,
+                serviceTime,
+                timeServiceBegins,
+                timeServiceBegins - arrivalTime,
+                timeServiceEnds,
+                timeSpent,
+                previous?.let {
                     val d = arrivalTime - it.timeServiceEnds
                     if (d > 0) d else 0
                 } ?: 0
